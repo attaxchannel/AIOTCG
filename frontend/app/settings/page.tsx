@@ -161,6 +161,11 @@ export default function SettingsPage(){
         </div>
       </div>
 
+      <div className="card border-amber-500/20 bg-amber-950/10">
+        <div className="text-sm font-bold">🌌 NEXT_PUBLIC_API_URL — where the PWA talks to studio</div>
+        <p className="text-xs text-zinc-400 mt-1">Frontend (Vercel/Netlify/phone/PC) → Backend (FastAPI). This is the ONLY connection. See <a href="/" className="text-violet-400">home section</a> or <code className="bg-zinc-800 px-1 rounded">frontend/.env.example</code> for where to store it. Tip: Chrome console → <code className="bg-zinc-800 px-1 rounded">localStorage.setItem('NEXT_PUBLIC_API_URL','https://new-backend.com')</code> then reload (no rebuild).</p>
+      </div>
+
       <div className="card bg-zinc-900/50">
         <div className="text-sm font-bold">Custom OpenAI-Compatible Provider (any URL)</div>
         <p className="text-xs text-zinc-500 mt-1">Point OpenAI Base URL to any compatible: OpenRouter, Together, Fireworks, Anyscale, Perplexity, etc. Just change Base URL + model + key above.</p>

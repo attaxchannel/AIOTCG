@@ -1,4 +1,14 @@
-export const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API = (() => {
+  const env = process.env.NEXT_PUBLIC_API_URL;
+  // Interactive override: set in browser console `localStorage.setItem('NEXT_PUBLIC_API_URL','https://your-backend.com')` then reload
+  if (typeof window !== 'undefined') {
+    try {
+      const ls = window.localStorage.getItem('NEXT_PUBLIC_API_URL');
+      if (ls && ls.startsWith('http')) return ls;
+    } catch {}
+  }
+  return env || "http://localhost:8000";
+})();
 
 export async function uploadVideo(file: File, ratios: string[] = ["9:16"]) {
   const fd = new FormData();

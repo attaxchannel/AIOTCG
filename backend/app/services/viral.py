@@ -19,6 +19,7 @@ def chunk_transcript(segments, window=30, overlap=5):
 
 def find_viral_clips(segments, max_clips=5):
     # Prefer vault (in-web API keys) then .env
+    v = None
     try:
         from app.services.viral_vault import get_active_llm
         v = get_active_llm()
@@ -27,8 +28,10 @@ def find_viral_clips(segments, max_clips=5):
         settings.openai_api_key = v['api_key']
         settings.openai_base_url = v['base_url']
         settings.llm_model = v['model']
+        settings.provider = v.get('provider','openai')
     except Exception:
         settings = get_settings()
+        if not hasattr(settings,'provider'): settings.provider='openai'
     transcript_text = chunk_transcript(segments)
     if not transcript_text.strip():
         return []
@@ -48,10 +51,21 @@ def find_viral_clips(segments, max_clips=5):
     try:
         from litellm import completion
         import os
-        os.environ["OPENAI_API_KEY"] = settings.openai_api_key
-        # LiteLLM uses base_url via env or param
+        # Map provider-aware model prefix for LiteLLM
+        provider = getattr(settings, 'provider', None) or getattr(v, 'provider', 'openai')
+        raw_model = settings.llm_model
+        if "/" not in raw_model:
+            if provider == "groq": litellm_model = f"groq/{raw_model}"
+            elif provider == "anthropic": litellm_model = f"anthropic/{raw_model}"
+            elif provider == "deepseek": litellm_model = f"deepseek/{raw_model}"
+            elif provider == "gemini": litellm_model = f"gemini/{raw_model}"
+            else: litellm_model = f"openai/{raw_model}"
+        else:
+            litellm_model = raw_model
+        if settings.openai_api_key: os.environ["OPENAI_API_KEY"] = settings.openai_api_key
+        if provider=="anthropic" and settings.openai_api_key: os.environ["ANTHROPIC_API_KEY"] = settings.openai_api_key
         resp = completion(
-            model=settings.llm_model if "/" in settings.llm_model else f"openai/{settings.llm_model}",
+            model=litellm_model,
             api_base=settings.openai_base_url,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef } from 'react';
 import { uploadVideo, API } from '../lib/api';
+import WhereApiUrl from '../components/WhereApiUrl';
 
 const FEATURES = [
   {icon:"🎯", title:"Viral Hook Finder", desc:"LLM scores HOOK/PAYOFF/EMOTION, finds 25-58s gold."},
@@ -251,6 +252,9 @@ export default function Home() {
         )}
         <button onClick={()=>setShowFeatures(!showFeatures)} className="w-full mt-3 text-xs text-violet-400 font-semibold">{showFeatures?"Show less ↑":"Show all 50+ tools →"}</button>
       </div>
+
+      {/* Where API URL lives — interactive */}
+      <WhereApiUrl />
 
       {/* Human footer */}
       <div className="text-center space-y-3 pb-2">

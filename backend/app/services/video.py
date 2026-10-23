@@ -4,7 +4,7 @@ import subprocess, json, os, shlex
 PROFILES = {
     "9:16": {"w":1080, "h":1920, "crop": "ih*9/16:ih"},
     "16:9": {"w":1920, "h":1080, "crop": "iw:iw*9/16"},
-    "1:1":  {"w":1080, "h":1080, "crop": "min(iw\,ih):min(iw\,ih)"},
+    "1:1":  {"w":1080, "h":1080, "crop": "min(iw\\,ih):min(iw\\,ih)"},
     "4:5":  {"w":1080, "h":1350, "crop": "ih*4/5:ih"},
 }
 

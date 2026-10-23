@@ -1,7 +1,7 @@
 """Generate .ass subtitle file with TikTok-style word pop for FFmpeg burn-in."""
 import pysubs2
 
-ASS_HEADER = """[Script Info]
+ASS_HEADER = r"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1080
 PlayResY: 1920
@@ -24,7 +24,7 @@ def to_ass_time(s: float):
 def segments_to_ass(segments, out_path, highlight_current_word=True):
     """
     segments: [{"start","end","text","words":[{"word","start","end"}]}]
-    Generates ASS where each word pops with \c&H00FFFF& highlight if highlight_current_word
+    Generates ASS where each word pops with \\c&H00FFFF& highlight if highlight_current_word
     """
     subs = pysubs2.SSAFile()
     # We'll generate line per segment, with karaoke-like per-word

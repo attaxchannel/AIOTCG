@@ -1,4 +1,5 @@
 import './globals.css';
+import GalaxyBackground from '../components/GalaxyBackground';
 import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
@@ -28,11 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-screen">
-        {/* Warm ambient gradient */}
-        <div className="fixed inset-0 -z-10 bg-[#0a0a0b]">
-          <div className="absolute inset-0 bg-gradient-to-b from-violet-950/30 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-violet-600/15 blur-[120px] rounded-full pointer-events-none" />
-        </div>
+        <GalaxyBackground />
 
         <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/60 border-b border-white/[0.06]">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
