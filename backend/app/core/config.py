@@ -1,9 +1,16 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+import os
 
 class Settings(BaseSettings):
-    redis_url: str = "redis://redis:6379/0"
-    database_url: str = "postgresql://aitcg:aitcg@postgres:5432/aitcg"
+    # Railway injects DATABASE_URL / REDIS_URL; support both naming
+    redis_url: str = os.getenv("REDIS_URL") or os.getenv("REDIS_PUBLIC_URL") or "redis://redis:6379/0"
+    database_url: str = (
+        os.getenv("DATABASE_URL")
+        or os.getenv("DATABASE_PUBLIC_URL")
+        or os.getenv("POSTGRES_URL")
+        or "postgresql://aitcg:aitcg@postgres:5432/aitcg"
+    )
     s3_endpoint: str = "http://minio:9000"
     s3_access_key: str = "aitcg"
     s3_secret_key: str = "aitcg12345"

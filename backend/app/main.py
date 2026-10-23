@@ -8,14 +8,14 @@ from app.api.jobs import router as jobs_router
 from app.api.ws import router as ws_router
 from app.api.settings import router as settings_router
 
-# Create tables
+# Create tables — non-fatal on Railway before Postgres plugin attaches
 try:
     Base.metadata.create_all(bind=engine)
     print("[db] tables ready")
 except Exception as e:
-    print(f"[db] init failed (will retry): {e}")
+    print(f"[db] init failed (will retry on request): {e}")
 
-app = FastAPI(title="AIOTCG API", version="1.0.0", description="All-In Tools Content Generator - Self-hosted PWA backend")
+app = FastAPI(title="AIOTCG API", version="1.0.0", description="All-In Tools Content Generator - Self-hosted PWA backend. Frontend: https://aiotcg-alpha.vercel.app")
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,7 +30,6 @@ app.include_router(jobs_router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(ws_router, tags=["ws"])
 app.include_router(settings_router, prefix="/api/settings", tags=["settings"])
 
-# Serve outputs as static (presigned in prod; simple static for self-host)
 os.makedirs("outputs", exist_ok=True)
 os.makedirs("uploads", exist_ok=True)
 if os.path.isdir("outputs"):
@@ -38,7 +37,7 @@ if os.path.isdir("outputs"):
 
 @app.get("/")
 def root():
-    return {"service":"AIOTCG","status":"online","docs":"/docs","version":"1.0.0","pwa":"Install via Add to Home Screen on Android"}
+    return {"service":"AIOTCG","status":"online","docs":"/docs","version":"1.0.0","pwa":"Install via Add to Home Screen — aiotcg-alpha.vercel.app"}
 
 @app.get("/health")
 def health():
