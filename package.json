@@ -1,13 +1,17 @@
 {
   "name": "aiotcg-monorepo",
   "private": true,
-  "workspaces": ["frontend"],
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
     "build": "npm run build -w aiotcg-frontend",
     "dev": "npm run dev -w aiotcg-frontend",
     "start": "npm run start -w aiotcg-frontend"
   },
-  "engines": { "node": "20.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "next": "14.2.33"
   }
