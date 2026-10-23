@@ -12,7 +12,8 @@ const withPWA = require('next-pwa').default({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone'
+  // Vercel/Netlify handle output themselves; standalone is only for Docker self-host
+  ...(process.env.VERCEL || process.env.NETLIFY ? {} : { output: 'standalone' }),
 };
 
 module.exports = withPWA(nextConfig);
