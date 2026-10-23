@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: { capable: true, title: 'AIOTCG', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },
-  themeColor: '#7C3AED',
 };
 
 export const viewport: Viewport = {
