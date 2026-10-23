@@ -43,9 +43,8 @@ export default function WhereApiUrl(){
         This is the <b>only</b> connection between your PWA (Vercel on phone/PC) and your studio (FastAPI + Whisper + FFmpeg). Change it here, the whole app follows <b>without</b> touching Vercel settings.
       </p>
 
-      {/* Interactive fill — answers your screenshot question */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 space-y-3">
-        <div className="text-xs font-bold text-zinc-200">📝 Fill your backend URL here (works on phone):</div>
+        <div className="text-xs font-bold text-zinc-200">📝 Fill your backend URL here (works on <span className="text-violet-400">aiotcg-alpha.vercel.app</span> on phone):</div>
         <input
           value={input}
           onChange={e=>setInput(e.target.value)}
@@ -60,22 +59,21 @@ export default function WhereApiUrl(){
         {msg && <div className={`text-xs rounded-xl px-3 py-2 border ${msg.startsWith('✓')?'bg-emerald-500/10 border-emerald-500/30 text-emerald-300':'bg-amber-500/10 border-amber-500/30 text-amber-200'}`}>{msg}</div>}
         {isLocalhost && (
           <div className="text-xs bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 leading-relaxed">
-            ⚠ Your current URL is <b>localhost</b> — it only works on your PC. On Vercel ( {-isOverride ? 'phone/PC internet' : 'build env'} ) it will always say <b>Backend not reachable</b>. Paste your <b>Railway / Render / Codespaces 8000 forwarded URL</b> above and Save.
-            <br/><span className="text-zinc-500">No backend yet? Deploy backend first (see table below) or keep this for later — frontend alone still shows the galaxy & UI.</span>
+            ⚠ Your <b>aiotcg-alpha.vercel.app</b> is currently using <b>localhost</b> — that only works on your PC. On the internet it will always say <b>Backend not reachable</b>. Paste your <b>Railway / Render / Codespaces 8000 forwarded URL</b> above and hit Save. {isOverride?'':' (right now: build env)'}
+            <br/><span className="text-zinc-500">No backend yet? Deploy it first (see table) or keep this — galaxy & UI work without it.</span>
           </div>
         )}
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 space-y-2">
         <div className="text-xs font-bold text-zinc-300">Current live value (what this browser uses now):</div>
-        <div className="font-mono text-xs bg-black/40 border border-zinc-800 rounded-xl px-3 py-2.5 break-all select-all">{api} {isOverride && <span className="text-violet-400">(override)</span>} {!isOverride && envBuild && <span className="text-zinc-500">(from build env)</span>}</div>
+        <div className="font-mono text-xs bg-black/40 border border-zinc-800 rounded-xl px-3 py-2.5 break-all select-all">{api} {isOverride && <span className="text-violet-400">(override)</span>} {!isOverride && <span className="text-zinc-500">(build env on aiotcg-alpha.vercel.app)</span>}</div>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className={`px-2.5 py-1 rounded-full font-bold ${envInfo?.status==="ok" ? "bg-emerald-500 text-white" : "bg-amber-500 text-black"}`}>{envInfo?.status==="ok" ? "● Backend online" : envInfo ? "● Backend not reachable" : "… checking"}</span>
           <span className="text-zinc-500">{envInfo?.whisper||""} {envInfo?.gpu?`• GPU ${envInfo.gpu}`:""}</span>
           {!envInfo && <span className="text-zinc-600">Probing {api}/api/health …</span>}
         </div>
-        {isOverride && <div className="text-[11px] text-violet-300">Using localStorage override — change it above or hit Reset to use Vercel env. Tip: also set Vercel → Environment Variables for other devices.</div>}
-        {!isOverride && envBuild && <div className="text-[11px] text-zinc-500">Build env: <code className="bg-zinc-800 px-1 rounded">{envBuild}</code> — change permanently in Vercel dashboard → Redeploy.</div>}
+        {isOverride && <div className="text-[11px] text-violet-300">Using localStorage override — change above or Reset to use Vercel env. Also set Vercel env for other devices.</div>}
       </div>
 
       <div className="overflow-auto rounded-2xl border border-zinc-800">
@@ -88,7 +86,7 @@ export default function WhereApiUrl(){
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800 text-zinc-300">
-            <tr><td className="p-2.5 font-semibold">Vercel (frontend)</td><td className="p-2.5">Vercel → Project → Settings → Environment Variables → add <code className="bg-zinc-800 px-1 rounded">NEXT_PUBLIC_API_URL</code> → Redeploy</td><td className="p-2.5">Use the <b>input above</b> on your vercel.app — instant, no Redeploy</td></tr>
+            <tr><td className="p-2.5 font-semibold">aiotcg-alpha.vercel.app</td><td className="p-2.5">Vercel → Project <b>aiotcg-alpha</b> → Settings → Environment Variables → add <code className="bg-zinc-800 px-1 rounded">NEXT_PUBLIC_API_URL</code> → Redeploy</td><td className="p-2.5">Use the <b>input above</b> on aiotcg-alpha.vercel.app — instant, no Redeploy</td></tr>
             <tr><td className="p-2.5 font-semibold">Netlify (frontend)</td><td className="p-2.5">Netlify → Site settings → Environment variables</td><td className="p-2.5">Same input above</td></tr>
             <tr><td className="p-2.5 font-semibold">Docker localhost</td><td className="p-2.5"><code className="bg-zinc-800 px-1 rounded">frontend/.env.local</code> + <code className="bg-zinc-800 px-1 rounded">docker-compose.yml</code></td><td className="p-2.5"><code className="bg-zinc-800 px-1 rounded">echo "NEXT_PUBLIC_API_URL=..." &gt; frontend/.env.local</code></td></tr>
             <tr><td className="p-2.5 font-semibold">No backend yet?</td><td className="p-2.5">Railway.app → New → Deploy from GitHub → add Redis+Postgres → copy URL as value</td><td className="p-2.5">Paste that URL above → Save</td></tr>
