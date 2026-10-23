@@ -6,6 +6,7 @@ from app.core.db import Base, engine
 from app.api.upload import router as upload_router
 from app.api.jobs import router as jobs_router
 from app.api.ws import router as ws_router
+from app.api.settings import router as settings_router
 
 # Create tables
 try:
@@ -27,6 +28,7 @@ app.add_middleware(
 app.include_router(upload_router, prefix="/api", tags=["upload"])
 app.include_router(jobs_router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(ws_router, tags=["ws"])
+app.include_router(settings_router, prefix="/api/settings", tags=["settings"])
 
 # Serve outputs as static (presigned in prod; simple static for self-host)
 os.makedirs("outputs", exist_ok=True)

@@ -18,7 +18,17 @@ def chunk_transcript(segments, window=30, overlap=5):
     return text
 
 def find_viral_clips(segments, max_clips=5):
-    settings = get_settings()
+    # Prefer vault (in-web API keys) then .env
+    try:
+        from app.services.viral_vault import get_active_llm
+        v = get_active_llm()
+        class VS: pass
+        settings = VS()
+        settings.openai_api_key = v['api_key']
+        settings.openai_base_url = v['base_url']
+        settings.llm_model = v['model']
+    except Exception:
+        settings = get_settings()
     transcript_text = chunk_transcript(segments)
     if not transcript_text.strip():
         return []

@@ -1,7 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Human Touch: warm, soft, not stark */
+:root { color-scheme: dark; }
 * { -webkit-tap-highlight-color: transparent; }
-body { @apply bg-black text-white antialiased; }
-.btn { @apply bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold py-3 px-6 rounded-2xl active:scale-95 transition; }
-.card { @apply bg-zinc-900 rounded-2xl p-4 border border-zinc-800; }
+body { @apply bg-[#0a0a0b] text-zinc-100 antialiased selection:bg-violet-500/30; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+/* Glass + warm gradients */
+.glass { @apply bg-white/[0.06] backdrop-blur-xl border border-white/[0.08]; }
+.card { @apply bg-zinc-900/70 backdrop-blur rounded-[24px] p-5 border border-zinc-800/80 shadow-[0_8px_32px_rgba(0,0,0,0.4)]; }
+.btn { @apply bg-gradient-to-br from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold py-3.5 px-6 rounded-2xl active:scale-[0.98] transition-all shadow-lg shadow-violet-600/20; }
+.btn-ghost { @apply bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-5 rounded-2xl transition; }
+.chip { @apply px-4 py-2 rounded-full text-sm border transition; }
+.chip-on { @apply bg-violet-600 border-violet-500 text-white shadow-md; }
+.chip-off { @apply bg-zinc-800 border-zinc-700 text-zinc-300; }
+
+/* Human micro-interactions */
+@keyframes float { 0%,100% { transform: translateY(0)} 50% { transform: translateY(-4px)} }
+.float { animation: float 3s ease-in-out infinite; }
+@keyframes pulse-soft { 0%,100% { opacity:1 } 50% { opacity:0.7 } }
+
+/* Safe area for phone notches */
+.pb-safe { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }

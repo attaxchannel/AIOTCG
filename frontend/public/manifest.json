@@ -1,25 +1,25 @@
 {
-  "name": "AIOTCG Studio",
+  "name": "AIOTCG Studio — Human Touch",
   "short_name": "AIOTCG",
-  "description": "All-In Tools Content Generator - Auto viral clips & captions",
+  "description": "All-In Tools Content Generator — Human made, AI powered. Auto viral clips on your phone.",
   "start_url": "/?source=pwa",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#7C3AED",
-  "orientation": "portrait",
   "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0b",
+  "theme_color": "#7C3AED",
+  "orientation": "any",
+  "categories": ["video", "productivity", "creativity"],
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
-  "share_target": {
-    "action": "/upload",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": { "title": "title", "text": "text", "url": "url", "files": [{ "name": "video", "accept": ["video/*"] }] }
-  },
   "shortcuts": [
-    { "name": "Auto Generate", "url": "/?action=auto", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Projects", "url": "/jobs", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
-  ]
+    { "name": "Generate Viral Clips", "url": "/", "description": "Upload and auto-generate", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Projects", "url": "/jobs", "description": "Your rendered clips" },
+    { "name": "API Keys", "url": "/settings", "description": "Add OpenAI / Claude / Groq keys" }
+  ],
+  "share_target": { "action": "/upload", "method": "GET", "params": { "title": "title", "text": "text", "url": "url" } },
+  "screenshots": []
 }
