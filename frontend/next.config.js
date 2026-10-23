@@ -1,4 +1,7 @@
-const withPWA = require('next-pwa').default({
+const _pwa = require('next-pwa');
+const withPWA = _pwa.default || _pwa;
+
+const pwa = withPWA({
   dest: 'public',
   register: true,
   skipWaiting: true,
@@ -16,4 +19,4 @@ const nextConfig = {
   ...(process.env.VERCEL || process.env.NETLIFY ? {} : { output: 'standalone' }),
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = pwa(nextConfig);
