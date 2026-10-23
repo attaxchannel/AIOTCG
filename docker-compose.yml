@@ -1,0 +1,35 @@
+services:
+  api:
+    build: ./backend
+    ports: ["8000:8000"]
+    env_file: .env
+    environment: [REDIS_URL=redis://redis:6379/0, DATABASE_URL=postgresql://aitcg:aitcg@postgres:5432/aitcg, S3_ENDPOINT=http://minio:9000]
+    volumes: ["./backend:/app", "uploads:/app/uploads", "outputs:/app/outputs"]
+    depends_on: [redis, postgres, minio]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  worker:
+    build: ./backend
+    env_file: .env
+    environment: [REDIS_URL=redis://redis:6379/0, DATABASE_URL=postgresql://aitcg:aitcg@postgres:5432/aitcg, S3_ENDPOINT=http://minio:9000]
+    volumes: ["./backend:/app", "uploads:/app/uploads", "outputs:/app/outputs"]
+    depends_on: [redis, postgres, minio, api]
+    command: celery -A app.celery_app.celery worker --loglevel=info -Q default,gpu -c 2 --max-memory-per-child 4000000
+  redis: {image: redis:7-alpine, ports: ["6379:6379"], volumes: [redisdata:/data]}
+  postgres:
+    image: postgres:16-alpine
+    environment: {POSTGRES_USER: aitcg, POSTGRES_PASSWORD: aitcg, POSTGRES_DB: aitcg}
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment: {MINIO_ROOT_USER: aitcg, MINIO_ROOT_PASSWORD: aitcg12345}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [mindata:/data]
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+    environment: [NEXT_PUBLIC_API_URL=http://localhost:8000]
+    volumes: ["./frontend:/app", "/app/node_modules", "/app/.next"]
+    depends_on: [api]
+volumes: {pgdata: {}, mindata: {}, redisdata: {}, uploads: {}, outputs: {}}
