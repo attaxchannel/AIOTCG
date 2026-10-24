@@ -137,13 +137,27 @@ export default function Home() {
   const [cat, setCat] = useState<string>("All");
   const [q, setQ] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [ingestMode, setIngestMode] = useState<"file"|"url">("file");
+  const [urlInput, setUrlInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const toggleRatio = (r: string) => setRatios(prev => prev.includes(r) ? prev.filter(x=>x!==r) : [...prev, r]);
 
   const onUpload = async () => {
-    if (!file) return;
     if (ratios.length===0) return alert("Pick at least one ratio");
+    if (ingestMode==="url") {
+      const u = urlInput.trim();
+      if (!u) return alert("Paste a YouTube / TikTok / direct video URL");
+      setUploading(true);
+      try {
+        const res = await fetch(`${getAPI()}/api/upload-url?url=${encodeURIComponent(u)}&mode=auto&ratios=${ratios.join(",")}`, {method:"POST"}).then(r=>{ if(!r.ok) return r.text().then(t=>{throw new Error(t)}); return r.json(); });
+        setJobId(res.job_id);
+        poll(res.job_id);
+      } catch(e:any) { alert(e.message.slice(0,400)); }
+      finally { setUploading(false); }
+      return;
+    }
+    if (!file) return;
     setUploading(true);
     try {
       const res = await uploadVideo(file, ratios);
@@ -236,19 +250,33 @@ export default function Home() {
           <span className="text-xs bg-zinc-800 border border-zinc-700 px-2.5 py-1 rounded-full font-medium">● Studio</span>
         </div>
 
-        <div
-          onClick={()=>inputRef.current?.click()}
-          className="group relative overflow-hidden rounded-2xl border-2 border-dashed border-zinc-700 bg-zinc-800/40 p-7 text-center hover:border-zinc-600 hover:bg-zinc-800/60 cursor-pointer transition"
-        >
-          <div className="relative">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-white text-black grid place-items-center font-black">⬆</div>
-            <div className="font-semibold mt-3 text-[14px] tracking-tight">{file ? file.name : "Drop or tap to select video"}</div>
-            <div className="text-xs text-zinc-500 mt-1">MP4 • MOV • WEBM • up to 2 GB • tus resumable</div>
-            {file && <div className="inline-flex mt-3 bg-zinc-900 border border-zinc-700 px-3 py-1.5 rounded-full text-xs font-medium">{(file.size/1024/1024).toFixed(1)} MB • Ready</div>}
-            {!file && <div className="text-[11px] text-zinc-600 mt-3">Share from YouTube → choose AIOTCG • Works installed as app</div>}
-          </div>
+        <div className="flex gap-2">
+          <button onClick={()=>setIngestMode("file")} className={`flex-1 py-2.5 rounded-full text-sm font-bold border transition ${ingestMode==="file"?"bg-white text-black border-white":"bg-zinc-800 border-zinc-700 text-zinc-400"}`}>📁 File</button>
+          <button onClick={()=>setIngestMode("url")} className={`flex-1 py-2.5 rounded-full text-sm font-bold border transition ${ingestMode==="url"?"bg-white text-black border-white":"bg-zinc-800 border-zinc-700 text-zinc-400"}`}>🔗 URL (YouTube / TikTok)</button>
         </div>
-        <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={e=>setFile(e.target.files?.[0]||null)} />
+
+        {ingestMode==="file" ? (
+          <>
+            <div
+              onClick={()=>inputRef.current?.click()}
+              className="group relative overflow-hidden rounded-2xl border-2 border-dashed border-zinc-700 bg-zinc-800/40 p-7 text-center hover:border-zinc-600 hover:bg-zinc-800/60 cursor-pointer transition"
+            >
+              <div className="relative">
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-white text-black grid place-items-center font-black">⬆</div>
+                <div className="font-semibold mt-3 text-[14px] tracking-tight">{file ? file.name : "Drop or tap to select video"}</div>
+                <div className="text-xs text-zinc-500 mt-1">MP4 • MOV • WEBM • up to 2 GB • tus resumable</div>
+                {file && <div className="inline-flex mt-3 bg-zinc-900 border border-zinc-700 px-3 py-1.5 rounded-full text-xs font-medium">{(file.size/1024/1024).toFixed(1)} MB • Ready</div>}
+                {!file && <div className="text-[11px] text-zinc-600 mt-3">Share from YouTube → choose AIOTCG • Works installed as app</div>}
+              </div>
+            </div>
+            <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={e=>setFile(e.target.files?.[0]||null)} />
+          </>
+        ) : (
+          <div className="space-y-2">
+            <input value={urlInput} onChange={e=>setUrlInput(e.target.value)} placeholder="Paste YouTube / TikTok / https://… .mp4 URL" className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3.5 text-sm placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none" />
+            <div className="text-[11px] text-zinc-500 leading-relaxed">Server runs <code className="bg-zinc-800 px-1 rounded">yt-dlp</code> to fetch best mp4, then Whisper → LLM → FFmpeg. No download on phone.</div>
+          </div>
+        )}
 
         <div>
           <div className="flex items-center justify-between">
@@ -272,7 +300,7 @@ export default function Home() {
           </div>
         </div>
 
-        <button onClick={onUpload} disabled={!file||uploading} className="btn w-full text-[15px] disabled:opacity-50 flex items-center justify-center gap-2">
+        <button onClick={onUpload} disabled={(ingestMode==="file"? !file : !urlInput.trim())||uploading} className="btn w-full text-[15px] disabled:opacity-50 flex items-center justify-center gap-2">
           {uploading ? <><span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Uploading…</> : <>Generate Viral Clips →</>}
         </button>
         <div className="flex items-center justify-center gap-2 text-xs text-zinc-500">

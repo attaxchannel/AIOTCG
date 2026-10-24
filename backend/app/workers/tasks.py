@@ -11,12 +11,14 @@ from app.services.autoframe import compute_offsets, offset_for_time
 
 def update_job(job_id, **kwargs):
     db = SessionLocal()
-    job = db.query(Job).filter(Job.id==job_id).first()
-    if job:
-        for k,v in kwargs.items():
-            setattr(job, k, v)
-        db.commit()
-    db.close()
+    try:
+        job = db.query(Job).filter(Job.id==job_id).first()
+        if job:
+            for k,v in kwargs.items():
+                setattr(job, k, v)
+            db.commit()
+    finally:
+        db.close()
 
 @celery.task(bind=True, name="app.workers.tasks.process_auto")
 def process_auto(self, job_id: str):
@@ -33,7 +35,9 @@ def process_auto(self, job_id: str):
         update_job(job_id, status="transcribing", progress=15)
         self.update_state(state="PROGRESS", meta={"step":"transcribing","pct":15})
         transcript = transcribe_file(input_path, language=None)
-        segments = transcript["segments"]
+        segments = transcript.get("segments") if isinstance(transcript, dict) else []
+        if not segments:
+            raise RuntimeError(f"Transcribe returned 0 segments — audio missing or whisper failed. transcript={str(transcript)[:600]}")
         update_job(job_id, transcript=transcript, progress=40)
 
         # Step 2: Viral analysis (LLM)
@@ -112,7 +116,10 @@ def rerender_manual(self, job_id: str):
         transcript = job.transcript or {"segments":[]}
         segments = transcript.get("segments", [])
 
+        update_job(job_id, status="rendering", progress=10)
         outputs = []
+        total = len(clips) * max(1, len(ratios))
+        done = 0
         for idx, clip in enumerate(clips):
             clip_start = float(clip["start"])
             clip_end = float(clip["end"])
@@ -121,13 +128,25 @@ def rerender_manual(self, job_id: str):
             os.makedirs("outputs", exist_ok=True)
             if clip_segments:
                 try: segments_to_ass(clip_segments, ass_path)
-                except: ass_path=None
+                except Exception as e:
+                    print(f"[caption rerender] {e}")
+                    ass_path=None
             else:
                 ass_path=None
             for ratio in ratios:
+                done += 1
+                pct = 10 + int(85 * done / total)
+                update_job(job_id, progress=pct)
+                try:
+                    self.update_state(state="PROGRESS", meta={"step": f"rendering {idx+1}/{len(clips)} {ratio}", "pct": pct})
+                except: pass
                 out_path = f"outputs/{job_id}_clip{idx}_{ratio.replace(':','x')}.mp4"
-                render_clip(input_path, out_path, clip_start, clip_end, ratio=ratio, ass_path=ass_path)
-                outputs.append({"clip_index": idx, "ratio": ratio, "path": out_path, "start": clip_start, "end": clip_end})
+                try:
+                    render_clip(input_path, out_path, clip_start, clip_end, ratio=ratio, ass_path=ass_path)
+                    outputs.append({"clip_index": idx, "ratio": ratio, "path": out_path, "start": clip_start, "end": clip_end})
+                except Exception as e:
+                    print(f"[render rerender] clip {idx} {ratio} failed: {e}")
+                    import traceback; traceback.print_exc()
         update_job(job_id, status="done", progress=100, outputs=outputs)
     except Exception as e:
         traceback.print_exc()

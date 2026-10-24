@@ -4,15 +4,17 @@ import { getAPI } from '../../../lib/api';
 export default function JobDetail({ params }: { params: { id: string } }){
   const [job,setJob]=useState<any>(null);
   useEffect(()=>{
-    const load=()=>fetch(`${getAPI()}/api/jobs/${params.id}`).then(r=>r.json()).then(setJob).catch(()=>{});
+    let t: any;
+    const load=()=>fetch(`${getAPI()}/api/jobs/${params.id}`).then(r=>r.json()).then(j=>{ setJob(j); if(j.status==="done"||j.status==="failed") clearInterval(t); }).catch(()=>{});
     load();
-    const t=setInterval(load,2000);
+    t=setInterval(load, 2500);
+    let ws: WebSocket | null = null;
     try{
-      const ws=new WebSocket(`${getAPI().replace(/^http/,"ws")}/ws/jobs/${params.id}`);
-      ws.onmessage=(ev)=>{ try{ setJob(JSON.parse(ev.data)); }catch{} };
+      ws=new WebSocket(`${getAPI().replace(/^http/,"ws")}/ws/jobs/${params.id}`);
+      ws.onmessage=(ev)=>{ try{ const d=JSON.parse(ev.data); setJob(d); if(d.status==="done"||d.status==="failed"){ clearInterval(t); try{ ws?.close(); }catch{} } }catch{} };
       ws.onerror=()=>{};
     }catch{}
-    return ()=>clearInterval(t);
+    return ()=>{ clearInterval(t); try{ ws?.close(); }catch{} };
   },[params.id]);
   if(!job) return <div className="card">Loading {params.id.slice(0,8)}…</div>;
   return (

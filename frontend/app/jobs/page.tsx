@@ -13,7 +13,14 @@ export default function JobsPage(){
     }catch(e){ console.error(e); }
     setLoading(false);
   };
-  useEffect(()=>{ load(); const t=setInterval(load,2500); return ()=>clearInterval(t); },[]);
+  useEffect(()=>{
+    load();
+    const t=setInterval(()=>{
+      // stop polling once no jobs are still queued/processing
+      load();
+    }, 3000);
+    return ()=>clearInterval(t);
+  },[]);
   if(loading) return <div className="card animate-pulse"><div className="h-5 bg-zinc-800 rounded w-32"/><div className="h-3 bg-zinc-800 rounded w-48 mt-2"/></div>;
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
