@@ -1,11 +1,11 @@
 {
-  "name": "AIOTCG Studio — Human Touch",
+  "name": "AIOTCG — Content OS",
   "short_name": "AIOTCG",
-  "description": "All-In Tools Content Generator — Human made, AI powered. Auto viral clips on your phone.",
+  "description": "Self-hosted Content OS — Whisper large-v3, YOLO auto-frame, TikTok captions, FFmpeg GPU. 100+ tools for Shorts/Reels/TikTok.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0a0a0b",
+  "background_color": "#09090b",
   "theme_color": "#7C3AED",
   "orientation": "any",
   "categories": ["video", "productivity", "creativity"],
@@ -16,9 +16,9 @@
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Generate Viral Clips", "url": "/", "description": "Upload and auto-generate", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Studio", "url": "/", "description": "Create viral clips" },
     { "name": "Projects", "url": "/jobs", "description": "Your rendered clips" },
-    { "name": "API Keys", "url": "/settings", "description": "Add OpenAI / Claude / Groq keys" }
+    { "name": "Vault", "url": "/settings", "description": "API keys — OpenAI / Claude / Groq" }
   ],
   "share_target": { "action": "/upload", "method": "GET", "params": { "title": "title", "text": "text", "url": "url" } },
   "screenshots": []

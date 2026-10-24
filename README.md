@@ -1,4 +1,4 @@
-# 🌌 AIOTCG Studio — Human Made, AI Powered
+# 🌌 AIOTCG — Content OS
 
 **All-In Tools Content Generator** — Self-hosted **Progressive Web App** that turns any long video into viral Shorts / Reels / TikToks in one tap — with a **living galaxy** behind it. No app store, no PC required. **Phone = Remote. Server = Studio.**
 
@@ -18,10 +18,10 @@
 | Mode | What it does |
 |---|---|
 | **Automatic Content Generator** | `faster-whisper` transcribes (Bahasa ID + EN), LLM scores every 5–60s window on HOOK/PAYOFF/EMOTION (Groq/Claude/GPT/Gemini/Ollama), YOLO frames subject to center for 9:16, FFmpeg burns TikTok word-pop captions and renders 4 ratios in parallel. |
-| **Manual Content Generator** | Human drags timeline (0.1s), taps transcript word to set start, picks B-roll/transition, rerenders — same GPU pipeline, your cut. |
+| **Manual Content Generator** | Creator drags timeline (0.1s), taps transcript word to set start, picks B-roll/transition, rerenders — same GPU pipeline, your cut. |
 | **Narrative / Studio Stories** | Long-form movie/storyline generation (template packs: Podcast/Gaming/Vlog/Story) + TTS + B-roll every 8s — Phase 4. |
 
-**Built for creators on phone:** huge thumb targets, bottom dock, glass cards rounded-24, warm #0a0a0b studio not stark, offline cache, resumable 4G upload.
+**Built for creators on phone:** huge thumb targets, bottom dock, glass cards rounded-24, #09090b studio pro not stark, offline cache, resumable 4G upload.
 
 ---
 
