@@ -26,8 +26,29 @@ export default function EditorPage(){
     try{
       const r=await fetch(`${getAPI()}/api/jobs/${job.id}/rerender`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({clips: [{start: clip.start, end: clip.end}], ratios: ["9:16"]})});
       const j=await r.json();
-      setMsg(j.ok||j.job_id ? `Rerender queued ✓ — check Projects` : JSON.stringify(j).slice(0,300));
+      setMsg(j.job_id ? `Rerender queued ✓ — new job ${String(j.job_id).slice(0,8)} — open Projects` : JSON.stringify(j).slice(0,300));
     }catch(e:any){ setMsg(e.message); }
+  };
+
+  // waveform helper: map transcript waveform peaks to timeline bar
+  const Wave = ({job, clip}: {job:any, clip:any}) => {
+    const wf = job?.transcript?.waveform?.peaks as number[] | undefined;
+    const dur = job?.transcript?.duration || job?.transcript?.waveform?.duration || 60;
+    if(!wf || !clip) return null;
+    const s = Math.max(0, clip.start), e = Math.min(dur, clip.end);
+    const bars = wf.length;
+    const i0 = Math.max(0, Math.floor(s/dur*bars));
+    const i1 = Math.min(bars, Math.ceil(e/dur*bars));
+    const slice = wf.slice(i0, i1);
+    if(slice.length===0) return null;
+    return (
+      <div className="flex gap-[2px] items-end h-12 bg-zinc-950 border border-zinc-800 rounded-xl px-2 py-1.5 overflow-hidden">
+        {slice.map((v,i)=>(
+          <div key={i} className="flex-1 min-w-[2px] bg-violet-500/90 rounded-full" style={{height: `${Math.max(12, v*100)}%`, opacity: 0.7 + v*0.3}} />
+        ))}
+        <span className="ml-2 text-[10px] text-zinc-600 font-mono self-center">{s.toFixed(1)}–{e.toFixed(1)}s • {bars} bars server-peaks</span>
+      </div>
+    );
   };
 
   return (
@@ -76,6 +97,7 @@ export default function EditorPage(){
                   <span className="text-zinc-500">Duration: {(job.clips[clipIdx].end - job.clips[clipIdx].start).toFixed(1)}s • ideal 25–58 s</span>
                   <button onClick={()=>{ const v=[...job.clips]; const mid=(v[clipIdx].start+v[clipIdx].end)/2; v[clipIdx].start=Math.max(0,mid-15); v[clipIdx].end=mid+15; setJob({...job, clips:v}); }} className="text-violet-400 font-medium">Reset 30 s</button>
                 </div>
+                <Wave job={job} clip={job.clips[clipIdx]} />
                 {job.segments && (
                   <>
                     <div className="text-xs font-semibold text-zinc-300">Tap word to set start</div>

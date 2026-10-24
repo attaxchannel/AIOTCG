@@ -6,7 +6,7 @@ from app.models.job import Job
 from app.services.transcribe import transcribe_file
 from app.services.viral import find_viral_clips
 from app.services.caption import segments_to_ass
-from app.services.video import render_clip
+from app.services.video import render_clip, generate_thumbnail, generate_waveform_peaks
 from app.services.autoframe import compute_offsets, offset_for_time
 
 def update_job(job_id, **kwargs):
@@ -48,6 +48,15 @@ def process_auto(self, job_id: str):
             clips = [{"start": segments[0]["start"], "end": min(segments[0]["start"]+35, segments[-1]["end"]), "score": 7, "title": "Auto Clip", "hook_text": segments[0]["text"][:60], "hashtags":[]}]
         update_job(job_id, clips=clips, status="rendering", progress=55)
 
+        # Step 2b: waveform peaks (for frontend timeline) + best thumbnail time
+        try:
+            wf = generate_waveform_peaks(input_path, duration=transcript.get("duration", 60), bars=120)
+            update_job(job_id, progress=48) # keep progress moving
+            # stash waveform in transcript for frontend
+            transcript["waveform"] = wf
+        except Exception as e:
+            print(f"[waveform] {e}")
+
         # Step 3: Autoframe offsets (YOLO)
         self.update_state(state="PROGRESS", meta={"step":"autoframe","pct":60})
         try:
@@ -84,12 +93,15 @@ def process_auto(self, job_id: str):
                 out_path = f"outputs/{job_id}_clip{idx}_{ratio.replace(':','x')}.mp4"
                 try:
                     render_clip(input_path, out_path, clip_start, clip_end, ratio=ratio, ass_path=ass_path, use_nvenc=False, y_center_offset=offset)
-                    outputs.append({"clip_index": idx, "ratio": ratio, "path": out_path, "start": clip_start, "end": clip_end, "title": clip.get("title",""), "score": clip.get("score")})
+                    thumb = out_path.replace(".mp4", "_thumb.jpg")
+                    try: generate_thumbnail(out_path, 0.6, thumb)
+                    except: thumb = None
+                    outputs.append({"clip_index": idx, "ratio": ratio, "path": out_path, "thumb": thumb if thumb and __import__("os").path.exists(thumb) else None, "start": clip_start, "end": clip_end, "title": clip.get("title",""), "score": clip.get("score")})
                 except Exception as e:
                     print(f"[render] clip {idx} {ratio} failed {e}")
                     traceback.print_exc()
 
-        update_job(job_id, status="done", progress=100, outputs=outputs)
+        update_job(job_id, status="done", progress=100, outputs=outputs, transcript=transcript)
         self.update_state(state="SUCCESS", meta={"pct":100})
         return {"status":"done","outputs":outputs}
 
