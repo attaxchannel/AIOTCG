@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { API } from '../lib/api';
+import { API, getAPI } from '../lib/api';
 
 export default function WhereApiUrl(){
-  const [api,setApi]=useState<string>(API);
-  const [input,setInput]=useState<string>(API);
+  const [api,setApi]=useState<string>(typeof window!=='undefined'?getAPI():API);
+  const [input,setInput]=useState<string>(typeof window!=='undefined'?getAPI():API);
   const [envInfo,setEnvInfo]=useState<any>(null);
   const [msg,setMsg]=useState<string>("");
   const envBuild = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_API_URL as string) : "") || "";
@@ -12,7 +12,7 @@ export default function WhereApiUrl(){
   const isLocalhost = api.includes('localhost') || api.includes('127.0.0.1');
 
   useEffect(()=>{
-    fetch(`${API}/api/health`).then(r=>r.json()).then(j=>setEnvInfo(j)).catch(()=>setEnvInfo({status:'offline'}));
+    fetch(`${getAPI()}/api/health`).then(r=>r.json()).then(j=>setEnvInfo(j)).catch(()=>setEnvInfo({status:'offline'}));
   },[]);
 
   const save = ()=>{

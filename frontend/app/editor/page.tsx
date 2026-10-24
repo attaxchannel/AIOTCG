@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { API } from '../../lib/api';
+import { getAPI } from '../../lib/api';
 
 export default function EditorPage(){
   const [jobId,setJobId]=useState("");
@@ -12,7 +12,7 @@ export default function EditorPage(){
     if(!jobId.trim()) return;
     setMsg("Loading…");
     try{
-      const j=await fetch(`${API}/api/jobs/${jobId.trim()}`).then(r=>r.json());
+      const j=await fetch(`${getAPI()}/api/jobs/${jobId.trim()}`).then(r=>r.json());
       if((j as any).error || (j as any).detail) { setMsg(JSON.stringify(j).slice(0,200)); return; }
       setJob(j);
       setMsg("");
@@ -24,7 +24,7 @@ export default function EditorPage(){
     if(!clip || !job) return;
     setMsg("Queueing rerender…");
     try{
-      const r=await fetch(`${API}/api/jobs/${job.id}/rerender`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({clip_index:clipIdx, start: clip.start, end: clip.end, ratio:"9:16"})});
+      const r=await fetch(`${getAPI()}/api/jobs/${job.id}/rerender`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({clips: [{start: clip.start, end: clip.end}], ratios: ["9:16"]})});
       const j=await r.json();
       setMsg(j.ok||j.job_id ? `Rerender queued ✓ — check Projects` : JSON.stringify(j).slice(0,300));
     }catch(e:any){ setMsg(e.message); }
@@ -97,7 +97,7 @@ export default function EditorPage(){
             <div className="card">
               <div className="font-bold text-sm tracking-tight mb-2">Outputs</div>
               {job.outputs.map((o:any,i:number)=>(
-                <a key={i} href={`${API}/outputs/${o.path.split("/").pop()}`} target="_blank" className="flex items-center justify-between gap-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-3 mt-2 hover:border-zinc-700 transition">
+                <a key={i} href={`${getAPI()}/outputs/${o.path.split("/").pop()}`} target="_blank" className="flex items-center justify-between gap-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-3 mt-2 hover:border-zinc-700 transition">
                   <span className="text-sm font-medium">{o.ratio} • Clip #{o.clip_index+1} • {o.start?.toFixed(1)}–{o.end?.toFixed(1)}s</span>
                   <span className="bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold">▶ Play</span>
                 </a>

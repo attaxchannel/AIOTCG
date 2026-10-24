@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { API } from '../../lib/api';
+import { API, getAPI } from '../../lib/api';
 
 const PROVIDERS = [
   {id:"openai", label:"OpenAI", icon:"◈", hint:"gpt-4o-mini • gpt-4o • any base_url", baseDefault:"https://api.openai.com/v1"},
@@ -37,7 +37,7 @@ export default function SettingsPage(){
     const ctrl = new AbortController();
     const t = setTimeout(()=> ctrl.abort(), 4000);
     try{
-      const r = await fetch(`${API}/api/settings`, {signal: ctrl.signal, cache:"no-store"});
+      const r = await fetch(`${getAPI()}/api/settings`, {signal: ctrl.signal, cache:"no-store"});
       clearTimeout(t);
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const j = await r.json();
@@ -70,7 +70,7 @@ export default function SettingsPage(){
     });
     try{
       const ctrl = new AbortController(); setTimeout(()=>ctrl.abort(), 6000);
-      const r = await fetch(`${API}/api/settings`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload), signal: ctrl.signal});
+      const r = await fetch(`${getAPI()}/api/settings`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload), signal: ctrl.signal});
       const j = await r.json();
       if(j.ok){ setMsg("✓ Saved to vault — active: "+active+" / "+model); try{ const cur={...data,...payload, active_llm_provider:active, active_llm_model:model}; localStorage.setItem("aiotcg_settings_cache", JSON.stringify(cur)); }catch{} }
       else setMsg("Save failed: "+JSON.stringify(j).slice(0,300));
@@ -83,7 +83,7 @@ export default function SettingsPage(){
     setTesting(true); setMsg("Testing "+active+"…");
     try{
       const ctrl = new AbortController(); setTimeout(()=>ctrl.abort(), 8000);
-      const r = await fetch(`${API}/api/settings/test`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({provider:active, model}), signal: ctrl.signal});
+      const r = await fetch(`${getAPI()}/api/settings/test`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({provider:active, model}), signal: ctrl.signal});
       const j = await r.json();
       setMsg(j.ok ? `✓ Connected to ${active} — ${j.sample||j.info||"ok"}` : `✗ ${j.error||"failed"}`);
     }catch(e:any){ setMsg("Test failed: "+e.message); }
@@ -221,7 +221,7 @@ export default function SettingsPage(){
         <div className="flex items-center gap-2 text-[11px] text-zinc-500">
           <span>Vault: <code className="bg-zinc-800 px-1 rounded">POST /api/settings</code></span>
           <span>•</span>
-          <a href={`${API}/docs`} target="_blank" className="text-violet-400">API Docs ↗</a>
+          <a href={`${getAPI()}/docs`} target="_blank" className="text-violet-400">API Docs ↗</a>
           <span className="ml-auto">{API}</span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useMemo } from 'react';
-import { uploadVideo, API } from '../lib/api';
+import { uploadVideo, API, getAPI } from '../lib/api';
 import WhereApiUrl from '../components/WhereApiUrl';
 
 type F = { cat:string; icon:string; title:string; desc:string; badge?:string };
@@ -155,7 +155,7 @@ export default function Home() {
 
   const poll = async (id: string) => {
     try {
-      const ws = new WebSocket(`${API.replace(/^http/,"ws")}/ws/jobs/${id}`);
+      const ws = new WebSocket(`${getAPI().replace(/^http/,"ws")}/ws/jobs/${id}`);
       ws.onmessage = (ev) => {
         const data = JSON.parse(ev.data);
         setStatus(data);
@@ -166,7 +166,7 @@ export default function Home() {
   };
   const fallbackPoll = (id:string)=>{
     const t = setInterval(async()=>{
-      const j = await fetch(`${API}/api/jobs/${id}`).then(r=>r.json());
+      const j = await fetch(`${getAPI()}/api/jobs/${id}`).then(r=>r.json());
       setStatus(j);
       if(j.status==="done"||j.status==="failed") clearInterval(t);
     }, 1500);
@@ -316,7 +316,7 @@ export default function Home() {
                     <div className="text-sm font-bold">{o.ratio} • Clip {o.clip_index+1}</div>
                     <div className="text-xs text-zinc-500">{o.start?.toFixed(1)}s – {o.end?.toFixed(1)}s</div>
                   </div>
-                  <a href={`${API}/outputs/${o.path.split("/").pop()}`} target="_blank" className="bg-white text-black px-4 py-2.5 rounded-full text-sm font-bold shrink-0">▶ Play</a>
+                  <a href={`${getAPI()}/outputs/${o.path.split("/").pop()}`} target="_blank" className="bg-white text-black px-4 py-2.5 rounded-full text-sm font-bold shrink-0">▶ Play</a>
                 </div>
               ))}
             </div>

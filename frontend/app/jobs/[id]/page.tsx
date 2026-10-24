@@ -1,14 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { API } from '../../../lib/api';
+import { getAPI } from '../../../lib/api';
 export default function JobDetail({ params }: { params: { id: string } }){
   const [job,setJob]=useState<any>(null);
   useEffect(()=>{
-    const load=()=>fetch(`${API}/api/jobs/${params.id}`).then(r=>r.json()).then(setJob).catch(()=>{});
+    const load=()=>fetch(`${getAPI()}/api/jobs/${params.id}`).then(r=>r.json()).then(setJob).catch(()=>{});
     load();
     const t=setInterval(load,2000);
     try{
-      const ws=new WebSocket(`${API.replace(/^http/,"ws")}/ws/jobs/${params.id}`);
+      const ws=new WebSocket(`${getAPI().replace(/^http/,"ws")}/ws/jobs/${params.id}`);
       ws.onmessage=(ev)=>{ try{ setJob(JSON.parse(ev.data)); }catch{} };
       ws.onerror=()=>{};
     }catch{}
@@ -51,8 +51,8 @@ export default function JobDetail({ params }: { params: { id: string } }){
                 <div className="text-xs text-zinc-500">{o.start?.toFixed(1)}s – {o.end?.toFixed(1)}s • {o.title||job.clips?.[o.clip_index]?.title||"Ready"}</div>
               </div>
               <div className="flex gap-2 shrink-0">
-                <a href={`${API}/outputs/${o.path.split("/").pop()}`} target="_blank" className="bg-white text-black px-4 py-2.5 rounded-full text-sm font-bold">▶ Play</a>
-                <a href={`${API}/outputs/${o.path.split("/").pop()}`} download className="bg-zinc-800 border border-zinc-700 w-10 h-10 grid place-items-center rounded-full">⤓</a>
+                <a href={`${getAPI()}/outputs/${o.path.split("/").pop()}`} target="_blank" className="bg-white text-black px-4 py-2.5 rounded-full text-sm font-bold">▶ Play</a>
+                <a href={`${getAPI()}/outputs/${o.path.split("/").pop()}`} download className="bg-zinc-800 border border-zinc-700 w-10 h-10 grid place-items-center rounded-full">⤓</a>
               </div>
             </div>
           ))}
@@ -62,7 +62,7 @@ export default function JobDetail({ params }: { params: { id: string } }){
       )}
       <div className="flex gap-2">
         <a href="/editor" className="btn-ghost text-sm">Open Editor</a>
-        <button onClick={async()=>{ if(!confirm("Delete job?")) return; await fetch(`${API}/api/jobs/${params.id}`,{method:"DELETE"}); location.href="/jobs"; }} className="text-xs bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-full">Delete</button>
+        <button onClick={async()=>{ if(!confirm("Delete job?")) return; await fetch(`${getAPI()}/api/jobs/${params.id}`,{method:"DELETE"}); location.href="/jobs"; }} className="text-xs bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-full">Delete</button>
       </div>
     </div>
   );

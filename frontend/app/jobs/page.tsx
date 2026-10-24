@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { API } from '../../lib/api';
+import { getAPI } from '../../lib/api';
 
 export default function JobsPage(){
   const [jobs,setJobs]=useState<any[]>([]);
   const [loading,setLoading]=useState(true);
   const load = async()=>{
     try{
-      const j = await fetch(`${API}/api/jobs`).then(r=>r.json());
+      const j = await fetch(`${getAPI()}/api/jobs`).then(r=>r.json());
       const arr = Array.isArray(j)?j:(j.jobs||j||[]);
       setJobs(arr);
     }catch(e){ console.error(e); }
